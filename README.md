@@ -1,5 +1,8 @@
 
 # Implementing Multiple Chaincodes on Multiple Channels in hyperledger fabric 
+
+I have explained it in great depth at https://medium.com/@harsh.vishnoi01/implementing-multiple-chaincode-on-different-channels-in-hyperledger-fabric-6f9c68ce348b
+
 ```
 ../bin/cryptogen generate --config=./crypto-config.yaml
  ```
