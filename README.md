@@ -1,7 +1,28 @@
 
-# Implementing Multiple Chaincodes on Multiple Channels in hyperledger fabric 
+# Multiple channels and chaincodes in Hyperledger Fabric
 
-I have explained it in great depth at https://medium.com/@harsh.vishnoi01/implementing-multiple-chaincode-on-different-channels-in-hyperledger-fabric-6f9c68ce348b
+A Fabric first-network (`first-network/`) extended to two channels and two chaincodes.
+
+| Channel | Profile | Members | Chaincode |
+| --- | --- | --- | --- |
+| `channelone` | `TwoOrgsChannel` | Org1, Org2 | `myacc` 1.0, Node, initialized with accounts `a=100` and `b=200`. Endorsement: Org1 and Org2 |
+| `channeltwo` | `FourOrgsChannel` | Org1, Org2, Org3, Org4 | `myacc1` 1.0, Node, initialized with accounts `c=100` and `d=200`. Endorsement: all four orgs |
+
+Both installs use `chaincode/chaincode_example02/node` and differ only by chaincode name, so each channel has its own ledger. Org3 and Org4 are not on channel one, so they cannot query `myacc`.
+
+The longer write-up is at https://medium.com/@harsh.vishnoi01/implementing-multiple-chaincode-on-different-channels-in-hyperledger-fabric-6f9c68ce348b.
+
+## Layout
+
+| Path | What it is |
+| --- | --- |
+| `first-network/` | Crypto config, `configtx.yaml`, compose files, and the BYFN scripts. See `first-network/README.md` |
+| `bin/` | `cryptogen`, `configtxgen`, `peer`, `orderer`, and the other Fabric binaries used by the commands below |
+| `chaincode/` | Sample chaincodes shipped with this network (`sacc`, `marbles02_private`, `abac`, `fabcar`, and others) |
+
+Run the commands from `first-network/` unless a path says otherwise. `cryptogen` and `configtxgen` are invoked as `../bin/...`.
+
+## Generate crypto material and channel transactions
 
 ```
 ../bin/cryptogen generate --config=./crypto-config.yaml
@@ -166,7 +187,7 @@ peer chaincode install -n myacc1 -v 1.0 -l node -p /opt/gopath/src/github.com/ch
 ```
 peer chaincode instantiate -o orderer.example.com:7050 --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C $CHANNEL_TWO_NAME -n myacc1 -l node -v 1.0 -c '{"Args":["init","c", "100", "d","200"]}' -P "AND ('Org1MSP.peer','Org2MSP.peer','Org3MSP.peer','Org4MSP.peer')"
 ```
-## Instal (secondchaincode) in Org1 Peer
+## Install (second chaincode) on the Org1 peer
 ```
 peer chaincode install -n myacc1 -v 1.0 -l node -p /opt/gopath/src/github.com/chaincode/chaincode_example02/node/
 ```
